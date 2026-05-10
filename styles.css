@@ -1,3 +1,27 @@
+
+:root{--bg:#0b1220;--panel:#111a2b;--soft:#1c2740;--text:#e5e7eb;--muted:#9ca3af;--primary:#3b82f6;--danger:#dc2626;--ok:#16a34a}
+*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,sans-serif}
+body{margin:0;background:linear-gradient(160deg,#0b1220,#0f172a);color:var(--text)}
+.hidden{display:none!important}
+.app-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.4rem;background:#070d18;border-bottom:1px solid #1f2937}
+.header-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+button,.btn{background:var(--primary);border:none;color:#fff;padding:.55rem .8rem;border-radius:10px;cursor:pointer}
+button.danger{background:var(--danger)}
+.auth-wrap{display:grid;place-items:center;min-height:calc(100vh - 85px);padding:1rem}
+.panel{width:min(540px,96%);background:var(--panel);padding:1rem;border:1px solid #243047;border-radius:14px}
+.grid{display:grid;gap:.6rem}.two-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+input,select{width:100%;padding:.62rem;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0}
+.muted{color:var(--muted);font-size:.9rem}
+.app-layout{display:grid;grid-template-columns:250px 1fr;min-height:calc(100vh - 85px)}
+.sidebar{background:#0a1120;border-left:1px solid #1f2937;padding:1rem;display:flex;flex-direction:column;gap:.5rem}
+.tab{background:#17233a;text-align:right}.tab.active{background:#1d4ed8}
+.content{padding:1rem}
+.tab-content{display:none;background:var(--panel);padding:1rem;border:1px solid #233047;border-radius:14px}.tab-content.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.6rem}.cards article{background:var(--soft);padding:.8rem;border-radius:10px}
+table{width:100%;border-collapse:collapse;margin-top:.8rem}th,td{padding:.55rem;border-bottom:1px solid #24324a;text-align:right}
+.badge{padding:.18rem .55rem;border-radius:999px;background:#1e293b}.ok{background:#14532d}.warn{background:#78350f}
+@media(max-width:980px){.app-layout{grid-template-columns:1fr}.sidebar{flex-direction:row;overflow:auto}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}}
+
 :root { --bg:#f5f7fb; --card:#fff; --accent:#2563eb; --danger:#dc2626; --muted:#64748b; --ok:#15803d; --text:#1f2937; }
 * { box-sizing:border-box; font-family:Tahoma,Arial,sans-serif; }
 body { margin:0; background:var(--bg); color:var(--text); }
