@@ -19,6 +19,7 @@
     </div>
   </header>
 
+
   <main id="authView" class="auth-wrap">
     <section class="panel">
       <h2>تسجيل الدخول</h2>
@@ -26,10 +27,47 @@
         <input id="loginEmail" placeholder="البريد الإلكتروني">
         <input id="loginPassword" type="password" placeholder="كلمة المرور">
         <button id="loginBtn">دخول</button>
+
+  <main class="layout">
+    <section class="card stats" aria-label="ملخص سريع">
+      <h2>ملخص سريع</h2>
+      <div class="stats-grid">
+        <div><span id="totalEmployees">0</span><small>إجمالي الموظفين</small></div>
+        <div><span id="totalDepartments">0</span><small>عدد الأقسام</small></div>
+        <div><span id="monthAbsences">0</span><small>غياب هذا الشهر</small></div>
+        <div><span id="monthLeaves">0</span><small>طلبات إجازة</small></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>إضافة/تعديل موظف</h2>
+      <form id="employeeForm" class="grid">
+        <input id="name" placeholder="الاسم" required />
+        <input id="role" placeholder="المنصب" required />
+        <input id="department" placeholder="القسم" required />
+        <input id="salary" type="number" min="1" placeholder="الراتب الأساسي" required />
+        <button id="employeeSubmit" type="submit">حفظ الموظف</button>
+      </form>
+      <p class="small">يمكنك تعديل أو حذف أي موظف من الجدول أدناه.</p>
+    </section>
+
+    <section class="card">
+      <h2>الحضور والانصراف</h2>
+      <div class="grid">
+        <select id="attendanceEmployee"></select>
+        <select id="attendanceStatus">
+          <option value="حاضر">حاضر</option>
+          <option value="غائب">غائب</option>
+          <option value="إجازة">إجازة</option>
+        </select>
+        <input id="attendanceDate" type="date" required />
+        <button id="addAttendance" type="button">تسجيل / تحديث</button>
+
       </div>
       <p class="muted">الحساب الإداري الافتراضي: <b>admin@finovate.local</b> / <b>admin123</b></p>
     </section>
   </main>
+
 
   <main id="appView" class="app-layout hidden">
     <aside class="sidebar">
@@ -42,6 +80,21 @@
       <button data-tab="operations" class="tab">العمليات</button>
       <button data-tab="payroll" class="tab">الرواتب</button>
     </aside>
+
+    <section class="card">
+      <h2>الإجازات</h2>
+      <div class="grid">
+        <select id="leaveEmployee"></select>
+        <input id="leaveFrom" type="date" />
+        <input id="leaveTo" type="date" />
+        <button id="addLeave" type="button">إرسال الطلب</button>
+      </div>
+      <table>
+        <thead><tr><th>الموظف</th><th>من</th><th>إلى</th><th>الحالة</th><th>إجراء</th></tr></thead>
+        <tbody id="leavesTable"></tbody>
+      </table>
+    </section>
+
 
     <section class="content">
       <section id="dashboard" class="tab-content active">
