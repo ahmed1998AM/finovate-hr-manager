@@ -3,78 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finovate HR Manager</title>
+  <title>Finovate HR Suite</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="topbar">
-    <h1>نظام إدارة الموارد البشرية</h1>
-    <div class="actions">
-      <button id="exportBtn">تصدير JSON</button>
-      <label class="file-label">استيراد JSON<input id="importFile" type="file" accept="application/json" hidden /></label>
-      <button id="resetBtn" class="danger">مسح كل البيانات</button>
+  <header class="app-header">
+    <div>
+      <h1>Finovate HR Suite</h1>
+      <p id="sessionText">نظام متكامل لإدارة الموظفين والمهام والعهد والعمليات</p>
+    </div>
+    <div class="header-actions">
+      <button id="exportBtn">تصدير</button>
+      <label class="btn">استيراد<input id="importFile" type="file" accept="application/json" hidden></label>
+      <button id="logoutBtn" class="danger">تسجيل الخروج</button>
     </div>
   </header>
 
-  <main class="layout">
-    <section class="card">
-      <h2>إضافة/تعديل موظف</h2>
-      <form id="employeeForm" class="grid">
-        <input id="name" placeholder="الاسم" required />
-        <input id="role" placeholder="المنصب" required />
-        <input id="department" placeholder="القسم" required />
-        <input id="salary" type="number" min="1" placeholder="الراتب الأساسي" required />
-        <button type="submit">حفظ الموظف</button>
-      </form>
-      <p class="small">يمكنك حذف أي موظف من الجدول أدناه.</p>
-    </section>
-
-    <section class="card">
-      <h2>الحضور والانصراف</h2>
+  <main id="authView" class="auth-wrap">
+    <section class="panel">
+      <h2>تسجيل الدخول</h2>
       <div class="grid">
-        <select id="attendanceEmployee"></select>
-        <select id="attendanceStatus">
-          <option value="حاضر">حاضر</option>
-          <option value="غائب">غائب</option>
-          <option value="إجازة">إجازة</option>
-        </select>
-        <input id="attendanceDate" type="date" required />
-        <button id="addAttendance" type="button">تسجيل</button>
+        <input id="loginEmail" placeholder="البريد الإلكتروني">
+        <input id="loginPassword" type="password" placeholder="كلمة المرور">
+        <button id="loginBtn">دخول</button>
       </div>
+      <p class="muted">الحساب الإداري الافتراضي: <b>admin@finovate.local</b> / <b>admin123</b></p>
     </section>
+  </main>
 
-    <section class="card">
-      <h2>الإجازات</h2>
-      <div class="grid">
-        <select id="leaveEmployee"></select>
-        <input id="leaveFrom" type="date" />
-        <input id="leaveTo" type="date" />
-        <button id="addLeave" type="button">إرسال الطلب</button>
-      </div>
-      <table>
-        <thead><tr><th>الموظف</th><th>من</th><th>إلى</th><th>الحالة</th></tr></thead>
-        <tbody id="leavesTable"></tbody>
-      </table>
-    </section>
+  <main id="appView" class="app-layout hidden">
+    <aside class="sidebar">
+      <button data-tab="dashboard" class="tab active">لوحة التحكم</button>
+      <button data-tab="employees" class="tab">الموظفون</button>
+      <button data-tab="accounts" class="tab admin-only">حسابات النظام</button>
+      <button data-tab="attendance" class="tab">الحضور</button>
+      <button data-tab="tasks" class="tab">المهام</button>
+      <button data-tab="assets" class="tab">العهد</button>
+      <button data-tab="operations" class="tab">العمليات</button>
+      <button data-tab="payroll" class="tab">الرواتب</button>
+    </aside>
 
-    <section class="card wide">
-      <h2>الموظفون</h2>
-      <input id="searchEmployee" placeholder="بحث بالاسم/القسم/المنصب" />
-      <table>
-        <thead><tr><th>الاسم</th><th>المنصب</th><th>القسم</th><th>الراتب</th><th>إجراءات</th></tr></thead>
-        <tbody id="employeesTable"></tbody>
-      </table>
-    </section>
+    <section class="content">
+      <section id="dashboard" class="tab-content active">
+        <h2>لوحة تحكم الموارد البشرية</h2>
+        <div class="cards" id="dashboardCards"></div>
+      </section>
 
-    <section class="card wide">
-      <h2>كشف الرواتب</h2>
-      <div class="inline-fields">
-        <label>الشهر: <input id="payrollMonth" type="month" /></label>
-      </div>
-      <table>
-        <thead><tr><th>الموظف</th><th>الحضور</th><th>الغياب</th><th>إجازة</th><th>الراتب النهائي</th></tr></thead>
-        <tbody id="payrollTable"></tbody>
-      </table>
+      <section id="employees" class="tab-content">
+        <h2>إدارة الموظفين</h2>
+        <form id="employeeForm" class="grid two-col">
+          <input id="empName" placeholder="الاسم" required>
+          <input id="empRole" placeholder="المنصب" required>
+          <input id="empDepartment" placeholder="القسم" required>
+          <input id="empSalary" type="number" min="1" placeholder="الراتب" required>
+          <button type="submit">حفظ الموظف</button>
+        </form>
+        <table><thead><tr><th>الاسم</th><th>المنصب</th><th>القسم</th><th>الراتب</th><th>إجراء</th></tr></thead><tbody id="employeesTable"></tbody></table>
+      </section>
+
+      <section id="accounts" class="tab-content">
+        <h2>حسابات النظام (المدير)</h2>
+        <form id="accountForm" class="grid two-col admin-only">
+          <input id="accName" placeholder="اسم المستخدم" required>
+          <input id="accEmail" type="email" placeholder="البريد" required>
+          <input id="accPassword" type="password" placeholder="كلمة المرور" required>
+          <select id="accRole"><option value="employee">موظف</option><option value="manager">مدير</option></select>
+          <button type="submit">إنشاء حساب</button>
+        </form>
+        <table><thead><tr><th>الاسم</th><th>البريد</th><th>الصلاحية</th><th>إجراء</th></tr></thead><tbody id="accountsTable"></tbody></table>
+      </section>
+
+      <section id="attendance" class="tab-content">
+        <h2>الحضور والانصراف</h2>
+        <div class="grid two-col">
+          <select id="attEmp"></select>
+          <select id="attStatus"><option>حاضر</option><option>غائب</option><option>إجازة</option></select>
+          <input id="attDate" type="date">
+          <button id="saveAttendance" type="button">حفظ</button>
+        </div>
+      </section>
+
+      <section id="tasks" class="tab-content">
+        <h2>المهام</h2>
+        <div class="grid two-col">
+          <select id="taskEmp"></select>
+          <input id="taskTitle" placeholder="عنوان المهمة">
+          <input id="taskDue" type="date">
+          <button id="addTask" type="button">إضافة مهمة</button>
+        </div>
+        <table><thead><tr><th>الموظف</th><th>المهمة</th><th>الاستحقاق</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="tasksTable"></tbody></table>
+      </section>
+
+      <section id="assets" class="tab-content">
+        <h2>العهد والممتلكات</h2>
+        <div class="grid two-col">
+          <select id="assetEmp"></select>
+          <input id="assetName" placeholder="اسم العهدة">
+          <input id="assetDate" type="date">
+          <button id="addAsset" type="button">تسجيل عهدة</button>
+        </div>
+        <table><thead><tr><th>الموظف</th><th>العهدة</th><th>تاريخ التسليم</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="assetsTable"></tbody></table>
+      </section>
+
+      <section id="operations" class="tab-content">
+        <h2>العمليات والطلبات</h2>
+        <div class="grid two-col">
+          <select id="opEmp"></select>
+          <input id="opTitle" placeholder="نوع العملية (سلفة/طلب/أخرى)">
+          <input id="opAmount" type="number" min="0" placeholder="المبلغ (اختياري)">
+          <button id="addOperation" type="button">إضافة عملية</button>
+        </div>
+        <table><thead><tr><th>الموظف</th><th>العملية</th><th>المبلغ</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="operationsTable"></tbody></table>
+      </section>
+
+      <section id="payroll" class="tab-content">
+        <h2>كشف الرواتب</h2>
+        <label>الشهر <input id="payrollMonth" type="month"></label>
+        <table><thead><tr><th>الموظف</th><th>الحضور</th><th>الغياب</th><th>الراتب النهائي</th></tr></thead><tbody id="payrollTable"></tbody></table>
+      </section>
     </section>
   </main>
 
