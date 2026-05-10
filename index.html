@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finovate HR Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>نظام إدارة الموارد البشرية</h1>
+    <button id="exportBtn">تصدير البيانات</button>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>إضافة موظف</h2>
+      <form id="employeeForm" class="grid">
+        <input id="name" placeholder="الاسم" required />
+        <input id="role" placeholder="المنصب" required />
+        <input id="department" placeholder="القسم" required />
+        <input id="salary" type="number" min="0" placeholder="الراتب الأساسي" required />
+        <button type="submit">حفظ الموظف</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>الحضور والانصراف</h2>
+      <div class="grid">
+        <select id="attendanceEmployee"></select>
+        <select id="attendanceStatus">
+          <option value="حاضر">حاضر</option>
+          <option value="غائب">غائب</option>
+          <option value="إجازة">إجازة</option>
+        </select>
+        <input id="attendanceDate" type="date" required />
+        <button id="addAttendance">تسجيل</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>طلب إجازة</h2>
+      <div class="grid">
+        <select id="leaveEmployee"></select>
+        <input id="leaveFrom" type="date" />
+        <input id="leaveTo" type="date" />
+        <button id="addLeave">إرسال الطلب</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>الموظفون</h2>
+      <table>
+        <thead><tr><th>الاسم</th><th>المنصب</th><th>القسم</th><th>الراتب</th><th>إجراءات</th></tr></thead>
+        <tbody id="employeesTable"></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>كشف رواتب (شهري)</h2>
+      <table>
+        <thead><tr><th>الموظف</th><th>الحضور</th><th>الغياب</th><th>الراتب النهائي</th></tr></thead>
+        <tbody id="payrollTable"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
