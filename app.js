@@ -1,7 +1,8 @@
-const STORAGE_KEY = "hr_manager_data_v2";
+const STORAGE_KEY = "hr_manager_data_v3";
 
 const emptyState = { employees: [], attendance: [], leaves: [] };
 const state = JSON.parse(localStorage.getItem(STORAGE_KEY) || JSON.stringify(emptyState));
+let editingEmployeeId = null;
 
 const $ = id => document.getElementById(id);
 
@@ -29,6 +30,12 @@ function employeeName(id) {
   return state.employees.find(e => e.id === id)?.name || "-";
 }
 
+function resetEmployeeForm() {
+  editingEmployeeId = null;
+  $("employeeSubmit").textContent = "حفظ الموظف";
+  $("employeeForm").reset();
+}
+
 function refreshSelectors() {
   [$("attendanceEmployee"), $("leaveEmployee")].forEach(sel => {
     sel.innerHTML = "";
@@ -39,6 +46,16 @@ function refreshSelectors() {
       sel.appendChild(opt);
     }
   });
+}
+
+function renderStats() {
+  const m = selectedMonth();
+  const monthAttendance = state.attendance.filter(a => monthKey(a.date) === m);
+  const departments = new Set(state.employees.map(e => e.department));
+  $("totalEmployees").textContent = String(state.employees.length);
+  $("totalDepartments").textContent = String(departments.size);
+  $("monthAbsences").textContent = String(monthAttendance.filter(a => a.status === "غائب").length);
+  $("monthLeaves").textContent = String(state.leaves.length);
 }
 
 function renderEmployees() {
@@ -52,17 +69,35 @@ function renderEmployees() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `<td>${emp.name}</td><td>${emp.role}</td><td>${emp.department}</td><td>${formatMoney(emp.salary)}</td>
-      <td><button class="danger" data-id="${emp.id}">حذف</button></td>`;
+      <td class="row-actions">
+        <button class="muted" data-edit-id="${emp.id}">تعديل</button>
+        <button class="danger" data-delete-id="${emp.id}">حذف</button>
+      </td>`;
     tbody.appendChild(tr);
   }
 
-  tbody.querySelectorAll("button[data-id]").forEach(btn => {
+  tbody.querySelectorAll("button[data-delete-id]").forEach(btn => {
     btn.onclick = () => {
-      const id = btn.dataset.id;
+      const id = btn.dataset.deleteId;
       state.employees = state.employees.filter(e => e.id !== id);
       state.attendance = state.attendance.filter(a => a.employeeId !== id);
       state.leaves = state.leaves.filter(l => l.employeeId !== id);
+      if (editingEmployeeId === id) resetEmployeeForm();
       renderAll();
+    };
+  });
+
+  tbody.querySelectorAll("button[data-edit-id]").forEach(btn => {
+    btn.onclick = () => {
+      const emp = state.employees.find(e => e.id === btn.dataset.editId);
+      if (!emp) return;
+      editingEmployeeId = emp.id;
+      $("name").value = emp.name;
+      $("role").value = emp.role;
+      $("department").value = emp.department;
+      $("salary").value = emp.salary;
+      $("employeeSubmit").textContent = "تحديث الموظف";
+      window.scrollTo({ top: 0, behavior: "smooth" });
     };
   });
 }
@@ -73,9 +108,19 @@ function renderLeaves() {
 
   for (const leave of state.leaves) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${employeeName(leave.employeeId)}</td><td>${leave.from}</td><td>${leave.to}</td><td>${leave.status}</td>`;
+    tr.innerHTML = `<td>${employeeName(leave.employeeId)}</td><td>${leave.from}</td><td>${leave.to}</td><td>${leave.status}</td>
+      <td><button class="success" data-approve-id="${leave.id}">اعتماد</button></td>`;
     tbody.appendChild(tr);
   }
+
+  tbody.querySelectorAll("button[data-approve-id]").forEach(btn => {
+    btn.onclick = () => {
+      const item = state.leaves.find(l => l.id === btn.dataset.approveId);
+      if (!item) return;
+      item.status = "معتمدة";
+      renderAll();
+    };
+  });
 }
 
 function renderPayroll() {
@@ -101,26 +146,32 @@ function renderAll() {
   renderEmployees();
   renderLeaves();
   renderPayroll();
+  renderStats();
   save();
 }
 
 $("employeeForm").addEventListener("submit", event => {
   event.preventDefault();
-  const emp = {
-    id: crypto.randomUUID(),
+  const data = {
     name: $("name").value.trim(),
     role: $("role").value.trim(),
     department: $("department").value.trim(),
     salary: Number($("salary").value)
   };
 
-  if (!emp.name || !emp.role || !emp.department || !(emp.salary > 0)) {
+  if (!data.name || !data.role || !data.department || !(data.salary > 0)) {
     alert("تحقق من جميع الحقول.");
     return;
   }
 
-  state.employees.push(emp);
-  $("employeeForm").reset();
+  if (editingEmployeeId) {
+    const existing = state.employees.find(e => e.id === editingEmployeeId);
+    if (existing) Object.assign(existing, data);
+  } else {
+    state.employees.push({ id: crypto.randomUUID(), ...data });
+  }
+
+  resetEmployeeForm();
   renderAll();
 });
 
@@ -130,7 +181,13 @@ $("addAttendance").onclick = () => {
   const status = $("attendanceStatus").value;
   if (!date) return alert("اختر تاريخًا");
 
-  state.attendance.push({ employeeId: $("attendanceEmployee").value, date, status });
+  const employeeId = $("attendanceEmployee").value;
+  const existing = state.attendance.find(a => a.employeeId === employeeId && a.date === date);
+  if (existing) {
+    existing.status = status;
+  } else {
+    state.attendance.push({ employeeId, date, status });
+  }
   renderAll();
 };
 
@@ -140,12 +197,15 @@ $("addLeave").onclick = () => {
   const to = $("leaveTo").value;
   if (!from || !to || from > to) return alert("حدد فترة إجازة صحيحة");
 
-  state.leaves.push({ employeeId: $("leaveEmployee").value, from, to, status: "قيد المراجعة" });
+  state.leaves.push({ id: crypto.randomUUID(), employeeId: $("leaveEmployee").value, from, to, status: "قيد المراجعة" });
   renderAll();
 };
 
 $("searchEmployee").addEventListener("input", renderEmployees);
-$("payrollMonth").addEventListener("change", renderPayroll);
+$("payrollMonth").addEventListener("change", () => {
+  renderPayroll();
+  renderStats();
+});
 
 $("exportBtn").onclick = () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
@@ -169,6 +229,7 @@ $("importFile").addEventListener("change", async event => {
     state.employees = data.employees;
     state.attendance = data.attendance;
     state.leaves = data.leaves;
+    resetEmployeeForm();
     renderAll();
   } catch {
     alert("ملف غير صالح");
@@ -181,6 +242,7 @@ $("resetBtn").onclick = () => {
   state.employees = [];
   state.attendance = [];
   state.leaves = [];
+  resetEmployeeForm();
   renderAll();
 };
 
